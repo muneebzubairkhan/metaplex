@@ -1,20 +1,11 @@
 import * as anchor from '@project-serum/anchor';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { SystemProgram } from '@solana/web3.js';
 import {
-  LAMPORTS_PER_SOL,
-  SYSVAR_RENT_PUBKEY,
-  TransactionInstruction,
+  LAMPORTS_PER_SOL, SystemProgram, SYSVAR_RENT_PUBKEY,
+  TransactionInstruction
 } from '@solana/web3.js';
 
-export interface AlertState {
-  open: boolean;
-  message: string;
-  severity: 'success' | 'info' | 'warning' | 'error' | undefined;
-  hideDuration?: number | null;
-}
-
-export const toDate = (value?: anchor.BN) => {
+export const toDate = value => {
   if (!value) {
     return;
   }
@@ -29,14 +20,14 @@ const numberFormater = new Intl.NumberFormat('en-US', {
 });
 
 export const formatNumber = {
-  format: (val?: number) => {
+  format: (val) => {
     if (!val) {
       return '--';
     }
 
     return numberFormater.format(val);
   },
-  asNumber: (val?: anchor.BN) => {
+  asNumber: val => {
     if (!val) {
       return undefined;
     }
@@ -52,29 +43,21 @@ export const CIVIC = new anchor.web3.PublicKey(
   'gatem74V238djXdzWnJf94Wo1DcnuGkfijbf3AuBhfs',
 );
 
-export const getAtaForMint = async (
-  mint: anchor.web3.PublicKey,
-  buyer: anchor.web3.PublicKey,
-): Promise<[anchor.web3.PublicKey, number]> => {
+export const getAtaForMint = async (mint, buyer) => {
   return await anchor.web3.PublicKey.findProgramAddress(
     [buyer.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mint.toBuffer()],
     SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID,
   );
 };
 
-export const getNetworkExpire = async (
-  gatekeeperNetwork: anchor.web3.PublicKey,
-): Promise<[anchor.web3.PublicKey, number]> => {
+export const getNetworkExpire = async gatekeeperNetwork => {
   return await anchor.web3.PublicKey.findProgramAddress(
     [gatekeeperNetwork.toBuffer(), Buffer.from('expire')],
     CIVIC,
   );
 };
 
-export const getNetworkToken = async (
-  wallet: anchor.web3.PublicKey,
-  gatekeeperNetwork: anchor.web3.PublicKey,
-): Promise<[anchor.web3.PublicKey, number]> => {
+export const getNetworkToken = async (wallet, gatekeeperNetwork) => {
   return await anchor.web3.PublicKey.findProgramAddress(
     [
       wallet.toBuffer(),
@@ -87,10 +70,10 @@ export const getNetworkToken = async (
 };
 
 export function createAssociatedTokenAccountInstruction(
-  associatedTokenAddress: anchor.web3.PublicKey,
-  payer: anchor.web3.PublicKey,
-  walletAddress: anchor.web3.PublicKey,
-  splTokenMintAddress: anchor.web3.PublicKey,
+  associatedTokenAddress,
+  payer,
+  walletAddress,
+  splTokenMintAddress,
 ) {
   const keys = [
     {

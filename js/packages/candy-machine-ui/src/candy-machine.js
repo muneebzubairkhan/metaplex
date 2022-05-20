@@ -1,20 +1,18 @@
 import * as anchor from '@project-serum/anchor';
-
-import { MintLayout, TOKEN_PROGRAM_ID, Token } from '@solana/spl-token';
+import { MintLayout, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import {
-  SystemProgram,
-  Transaction,
-  SYSVAR_SLOT_HASHES_PUBKEY,
+  SystemProgram, SYSVAR_SLOT_HASHES_PUBKEY
 } from '@solana/web3.js';
 import { sendTransactions, SequenceType } from './connection';
-
 import {
   CIVIC,
   getAtaForMint,
   getNetworkExpire,
   getNetworkToken,
-  SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID,
+  SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID
 } from './utils';
+
+
 
 export const CANDY_MACHINE_PROGRAM = new anchor.web3.PublicKey(
   'cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ',
@@ -24,55 +22,14 @@ const TOKEN_METADATA_PROGRAM_ID = new anchor.web3.PublicKey(
   'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s',
 );
 
-interface CandyMachineState {
-  authority: anchor.web3.PublicKey;
-  itemsAvailable: number;
-  itemsRedeemed: number;
-  itemsRemaining: number;
-  treasury: anchor.web3.PublicKey;
-  tokenMint: null | anchor.web3.PublicKey;
-  isSoldOut: boolean;
-  isActive: boolean;
-  isPresale: boolean;
-  isWhitelistOnly: boolean;
-  goLiveDate: anchor.BN;
-  price: anchor.BN;
-  gatekeeper: null | {
-    expireOnUse: boolean;
-    gatekeeperNetwork: anchor.web3.PublicKey;
-  };
-  endSettings: null | {
-    number: anchor.BN;
-    endSettingType: any;
-  };
-  whitelistMintSettings: null | {
-    mode: any;
-    mint: anchor.web3.PublicKey;
-    presale: boolean;
-    discountPrice: null | anchor.BN;
-  };
-  hiddenSettings: null | {
-    name: string;
-    uri: string;
-    hash: Uint8Array;
-  };
-  retainAuthority: boolean;
-}
-
-export interface CandyMachineAccount {
-  id: anchor.web3.PublicKey;
-  program: anchor.Program;
-  state: CandyMachineState;
-}
-
 export const awaitTransactionSignatureConfirmation = async (
-  txid: anchor.web3.TransactionSignature,
-  timeout: number,
-  connection: anchor.web3.Connection,
+  txid,
+  timeout,
+  connection,
   queryStatus = false,
-): Promise<anchor.web3.SignatureStatus | null | void> => {
+) => {
   let done = false;
-  let status: anchor.web3.SignatureStatus | null | void = {
+  let status = {
     slot: 0,
     confirmations: 0,
     err: null,
@@ -131,10 +88,10 @@ export const awaitTransactionSignatureConfirmation = async (
 };
 
 const createAssociatedTokenAccountInstruction = (
-  associatedTokenAddress: anchor.web3.PublicKey,
-  payer: anchor.web3.PublicKey,
-  walletAddress: anchor.web3.PublicKey,
-  splTokenMintAddress: anchor.web3.PublicKey,
+  associatedTokenAddress,
+  payer,
+  walletAddress,
+  splTokenMintAddress,
 ) => {
   const keys = [
     { pubkey: payer, isSigner: true, isWritable: true },
@@ -161,19 +118,19 @@ const createAssociatedTokenAccountInstruction = (
 };
 
 export const getCandyMachineState = async (
-  anchorWallet: anchor.Wallet,
-  candyMachineId: anchor.web3.PublicKey,
-  connection: anchor.web3.Connection,
-): Promise<CandyMachineAccount> => {
+  anchorWallet,
+  candyMachineId,
+  connection,
+) => {
   const provider = new anchor.Provider(connection, anchorWallet, {
     preflightCommitment: 'processed',
   });
 
   const idl = await anchor.Program.fetchIdl(CANDY_MACHINE_PROGRAM, provider);
 
-  const program = new anchor.Program(idl!, CANDY_MACHINE_PROGRAM, provider);
+  const program = new anchor.Program(idl, CANDY_MACHINE_PROGRAM, provider);
 
-  const state: any = await program.account.candyMachine.fetch(candyMachineId);
+  const state = await program.account.candyMachine.fetch(candyMachineId);
   const itemsAvailable = state.data.itemsAvailable.toNumber();
   const itemsRedeemed = state.itemsRedeemed.toNumber();
   const itemsRemaining = itemsAvailable - itemsRedeemed;
@@ -203,9 +160,7 @@ export const getCandyMachineState = async (
   };
 };
 
-const getMasterEdition = async (
-  mint: anchor.web3.PublicKey,
-): Promise<anchor.web3.PublicKey> => {
+const getMasterEdition = async mint => {
   return (
     await anchor.web3.PublicKey.findProgramAddress(
       [
@@ -219,9 +174,7 @@ const getMasterEdition = async (
   )[0];
 };
 
-const getMetadata = async (
-  mint: anchor.web3.PublicKey,
-): Promise<anchor.web3.PublicKey> => {
+const getMetadata = async mint => {
   return (
     await anchor.web3.PublicKey.findProgramAddress(
       [
@@ -234,33 +187,21 @@ const getMetadata = async (
   )[0];
 };
 
-export const getCandyMachineCreator = async (
-  candyMachine: anchor.web3.PublicKey,
-): Promise<[anchor.web3.PublicKey, number]> => {
+export const getCandyMachineCreator = async candyMachine => {
   return await anchor.web3.PublicKey.findProgramAddress(
     [Buffer.from('candy_machine'), candyMachine.toBuffer()],
     CANDY_MACHINE_PROGRAM,
   );
 };
 
-export const getCollectionPDA = async (
-  candyMachineAddress: anchor.web3.PublicKey,
-): Promise<[anchor.web3.PublicKey, number]> => {
+export const getCollectionPDA = async candyMachineAddress => {
   return await anchor.web3.PublicKey.findProgramAddress(
     [Buffer.from('collection'), candyMachineAddress.toBuffer()],
     CANDY_MACHINE_PROGRAM,
   );
 };
 
-export interface CollectionData {
-  mint: anchor.web3.PublicKey;
-  candyMachine: anchor.web3.PublicKey;
-}
-
-export const getCollectionAuthorityRecordPDA = async (
-  mint: anchor.web3.PublicKey,
-  newAuthority: anchor.web3.PublicKey,
-): Promise<anchor.web3.PublicKey> => {
+export const getCollectionAuthorityRecordPDA = async (mint, newAuthority) => {
   return (
     await anchor.web3.PublicKey.findProgramAddress(
       [
@@ -275,22 +216,13 @@ export const getCollectionAuthorityRecordPDA = async (
   )[0];
 };
 
-export type SetupState = {
-  mint: anchor.web3.Keypair;
-  userTokenAccount: anchor.web3.PublicKey;
-  transaction: string;
-};
-
-export const createAccountsForMint = async (
-  candyMachine: CandyMachineAccount,
-  payer: anchor.web3.PublicKey,
-): Promise<SetupState> => {
+export const createAccountsForMint = async (candyMachine, payer) => {
   const mint = anchor.web3.Keypair.generate();
   const userTokenAccountAddress = (
     await getAtaForMint(mint.publicKey, payer)
   )[0];
 
-  const signers: anchor.web3.Keypair[] = [mint];
+  const signers = [mint];
   const instructions = [
     anchor.web3.SystemProgram.createAccount({
       fromPubkey: payer,
@@ -346,18 +278,13 @@ export const createAccountsForMint = async (
   };
 };
 
-type MintResult = {
-  mintTxId: string;
-  metadataKey: anchor.web3.PublicKey;
-};
-
 export const mintOneToken = async (
-  candyMachine: CandyMachineAccount,
-  payer: anchor.web3.PublicKey,
-  beforeTransactions: Transaction[] = [],
-  afterTransactions: Transaction[] = [],
-  setupState?: SetupState,
-): Promise<MintResult | null> => {
+  candyMachine,
+  payer,
+  beforeTransactions = [],
+  afterTransactions = [],
+  setupState,
+) => {
   const mint = setupState?.mint ?? anchor.web3.Keypair.generate();
   const userTokenAccountAddress = (
     await getAtaForMint(mint.publicKey, payer)
@@ -370,7 +297,7 @@ export const mintOneToken = async (
   const candyMachineAddress = candyMachine.id;
   const remainingAccounts = [];
   const instructions = [];
-  const signers: anchor.web3.Keypair[] = [];
+  const signers = [];
   console.log('SetupState: ', setupState);
   if (!setupState) {
     signers.push(mint);
@@ -520,9 +447,7 @@ export const mintOneToken = async (
   if (collectionPDAAccount && candyMachine.state.retainAuthority) {
     try {
       const collectionData =
-        (await candyMachine.program.account.collectionPda.fetch(
-          collectionPDA,
-        )) as CollectionData;
+        await candyMachine.program.account.collectionPda.fetch(collectionPDA);
       console.log(collectionData);
       const collectionMint = collectionData.mint;
       const collectionAuthorityRecord = await getCollectionAuthorityRecordPDA(
@@ -588,10 +513,10 @@ export const mintOneToken = async (
   return null;
 };
 
-export const shortenAddress = (address: string, chars = 4): string => {
+export const shortenAddress = (address, chars = 4) => {
   return `${address.slice(0, chars)}...${address.slice(-chars)}`;
 };
 
-const sleep = (ms: number): Promise<void> => {
+const sleep = ms => {
   return new Promise(resolve => setTimeout(resolve, ms));
 };

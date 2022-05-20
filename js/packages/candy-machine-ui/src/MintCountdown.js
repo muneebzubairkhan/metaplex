@@ -1,8 +1,8 @@
 import { Paper } from '@material-ui/core';
+import { createStyles, makeStyles } from '@material-ui/core/styles';
 import Countdown from 'react-countdown';
-import { Theme, createStyles, makeStyles } from '@material-ui/core/styles';
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
       display: 'flex',
@@ -45,22 +45,7 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-interface MintCountdownProps {
-  date: Date | undefined;
-  style?: React.CSSProperties;
-  status?: string;
-  onComplete?: () => void;
-}
-
-interface MintCountdownRender {
-  days: number;
-  hours: number;
-  minutes: number;
-  seconds: number;
-  completed: boolean;
-}
-
-export const MintCountdown: React.FC<MintCountdownProps> = ({
+export const MintCountdown = ({
   date,
   status,
   style,
@@ -73,7 +58,7 @@ export const MintCountdown: React.FC<MintCountdownProps> = ({
     minutes,
     seconds,
     completed,
-  }: MintCountdownRender) => {
+  }) => {
     hours += days * 24;
     if (completed) {
       return status ? <span className={classes.done}>{status}</span> : null;

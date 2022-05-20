@@ -1,16 +1,15 @@
-import styled from 'styled-components';
-import Button from '@material-ui/core/Button';
-import { CandyMachineAccount } from './candy-machine';
-import { CircularProgress } from '@material-ui/core';
 import { GatewayStatus, useGateway } from '@civic/solana-gateway-react';
-import { useEffect, useState, useRef } from 'react';
-import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import {
   findGatewayToken,
   getGatewayTokenAddressForOwnerAndGatekeeperNetwork,
   onGatewayTokenChange,
-  removeAccountChangeListener,
+  removeAccountChangeListener
 } from '@identity.com/solana-gateway-ts';
+import { CircularProgress } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import { useEffect, useRef, useState } from 'react';
+import styled from 'styled-components';
 
 export const CTAButton = styled(Button)`
   width: 100%;
@@ -29,12 +28,6 @@ export const MintButton = ({
   isMinting,
   setIsMinting,
   isActive,
-}: {
-  onMint: () => Promise<void>;
-  candyMachine?: CandyMachineAccount;
-  isMinting: boolean;
-  setIsMinting: (val: boolean) => void;
-  isActive: boolean;
 }) => {
   const wallet = useWallet();
   const connection = useConnection();
@@ -118,7 +111,7 @@ export const MintButton = ({
             setClicked(true);
             const gatewayToken = await findGatewayToken(
               connection.connection,
-              wallet.publicKey!,
+              wallet.publicKey,
               candyMachine.state.gatekeeper.gatekeeperNetwork,
             );
 
@@ -132,7 +125,7 @@ export const MintButton = ({
 
               const gatewayTokenAddress =
                 await getGatewayTokenAddressForOwnerAndGatekeeperNetwork(
-                  wallet.publicKey!,
+                  wallet.publicKey,
                   candyMachine.state.gatekeeper.gatekeeperNetwork,
                 );
 
@@ -161,8 +154,8 @@ export const MintButton = ({
   );
 };
 
-function usePrevious<T>(value: T): T | undefined {
-  const ref = useRef<T>();
+function usePrevious(value) {
+  const ref = useRef();
   useEffect(() => {
     ref.current = value;
   }, [value]);
