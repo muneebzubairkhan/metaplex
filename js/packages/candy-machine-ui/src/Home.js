@@ -737,7 +737,7 @@ const Home = props => {
             <div className="col-lg-3 col-md-4 px-5 px-md-4 px-lg-5 d-flex-justify-content-end">
               <button
                 onClick={() => {
-                  connectBtn.current.click();
+                  if(!wallet.publicKey) connectBtn.current.click()
                 }}
                 className="mt-5 btn-purple  mt-3 w-100"
               >
@@ -769,7 +769,14 @@ const Home = props => {
                     />
                     <a
                       onClick={() => {
-                        mintBtn.current.click();
+                        if (
+                          isActive ||
+                          (isPresale && isWhitelistUser && isValidBalance)
+                        ) {
+                          mintBtn.current.click();
+                        } else {
+                          if (!wallet.publicKey) connectBtn.current.click();
+                        }
                       }}
                       className="btn-green mt-2"
                     >
