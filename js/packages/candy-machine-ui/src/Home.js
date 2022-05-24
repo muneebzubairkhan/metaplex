@@ -29,24 +29,22 @@ import { formatNumber, getAtaForMint, toDate } from './utils';
 import Birds from './Components/Birds';
 import FAQS from './Components/FAQS';
 import Copyright from './Components/Copyright';
+import { useRef } from 'react';
 
-const ConnectButton = styled(WalletDialogButton)`
-  width: 100%;
-  height: 60px;
-  margin-top: 10px;
-  margin-bottom: 5px;
-  background: linear-gradient(180deg, #604ae5 0%, #813eee 100%);
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-`;
+export const shortAddress = _address => {
+  return (
+    _address.substr(0, 5) +
+    '****' +
+    _address.substr(_address.length - 4, _address.length)
+  );
+};
 
 const MintContainer = styled.div``; // add your owns styles here
 
-
-
-const Home = (props) => {
+const Home = props => {
   const [num, setNum] = useState(0);
+  const connectBtn = useRef();
+  const mintBtn = useRef();
 
   const [isUserMinting, setIsUserMinting] = useState(false);
   const [candyMachine, setCandyMachine] = useState();
@@ -82,7 +80,7 @@ const Home = (props) => {
       publicKey: wallet.publicKey,
       signAllTransactions: wallet.signAllTransactions,
       signTransaction: wallet.signTransaction,
-    } ;
+    };
   }, [wallet]);
 
   const refreshCandyMachineState = useCallback(
@@ -283,10 +281,7 @@ const Home = (props) => {
     [anchorWallet, props.candyMachineId, props.rpcHost],
   );
 
-  const onMint = async (
-    beforeTransactions = [],
-    afterTransactions = [],
-  ) => {
+  const onMint = async (beforeTransactions = [], afterTransactions = []) => {
     try {
       setIsUserMinting(true);
       document.getElementById('#identity')?.click();
@@ -483,8 +478,15 @@ const Home = (props) => {
               />
             </div>
             <div className="col-lg-3 col-md-4 px-5 px-md-4 px-lg-5 d-flex-justify-content-end">
-              <button className="mt-5 btn-purple  mt-3 w-100">
-                CONNECT WALLET
+              <button
+                onClick={() => {
+                  connectBtn.current.click();
+                }}
+                className="mt-5 btn-purple  mt-3 w-100"
+              >
+                {wallet.publicKey
+                  ? shortAddress('' + wallet.publicKey)
+                  : 'CONNECT WALLET'}
               </button>
             </div>
           </div>
@@ -508,7 +510,12 @@ const Home = (props) => {
                       type="number"
                       className="w-100 mt-2 btn-green header__input"
                     />
-                    <a className="btn-green mt-2">
+                    <a
+                      onClick={() => {
+                        mintBtn.current.click();
+                      }}
+                      className="btn-green mt-2"
+                    >
                       {getMintButtonContent(candyMachine, isUserMinting)}
                     </a>
                     {/* <a className="btn-green mt-2">VIEW ON LOOKSRARE</a> */}
@@ -681,7 +688,9 @@ const Home = (props) => {
             }}
           >
             {!wallet.connected ? (
-              <ConnectButton>Connect Wallet</ConnectButton>
+              <WalletDialogButton innerRef={connectBtn}>
+                Connect Wallet
+              </WalletDialogButton>
             ) : (
               <>
                 {candyMachine && (
@@ -861,6 +870,7 @@ const Home = (props) => {
                       options={{ autoShowModal: false }}
                     >
                       <MintButton
+                        innerRef={mintBtn}
                         candyMachine={candyMachine}
                         isMinting={isUserMinting}
                         setIsMinting={val => setIsUserMinting(val)}
@@ -873,6 +883,7 @@ const Home = (props) => {
                     </GatewayProvider>
                   ) : (
                     <MintButton
+                      innerRef={mintBtn}
                       candyMachine={candyMachine}
                       isMinting={isUserMinting}
                       setIsMinting={val => setIsUserMinting(val)}

@@ -38,6 +38,7 @@ export const getMintButtonContent = (candyMachine, isMinting) => {
 };
 
 export const MintButton = ({
+  innerRef,
   onMint,
   candyMachine,
   isMinting,
@@ -93,6 +94,7 @@ export const MintButton = ({
 
   return (
     <CTAButton
+      ref={innerRef}
       disabled={isMinting || !isActive}
       onClick={async () => {
         if (candyMachine?.state.isActive && candyMachine?.state.gatekeeper) {
