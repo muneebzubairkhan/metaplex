@@ -1,11 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Alice&family=Bree+Serif&display=swap');
 body {
-  background: #000000;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Alice', serif;
+font-family: 'Bree Serif', serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: rgb(12, 0, 26);
 }
 
 code {
