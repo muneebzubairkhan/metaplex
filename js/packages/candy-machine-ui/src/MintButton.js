@@ -22,6 +22,21 @@ export const CTAButton = styled(Button)`
   font-weight: bold;
 `; // add your own styles here
 
+export const getMintButtonContent = (candyMachine, isMinting) => {
+  if (candyMachine?.state.isSoldOut) {
+    return 'SOLD OUT';
+  } else if (isMinting) {
+    return <CircularProgress />;
+  } else if (
+    candyMachine?.state.isPresale ||
+    candyMachine?.state.isWhitelistOnly
+  ) {
+    return 'WHITELIST MINT';
+  }
+
+  return 'MINT';
+};
+
 export const MintButton = ({
   onMint,
   candyMachine,
@@ -36,20 +51,7 @@ export const MintButton = ({
   const [webSocketSubscriptionId, setWebSocketSubscriptionId] = useState(-1);
   const [clicked, setClicked] = useState(false);
 
-  const getMintButtonContent = () => {
-    if (candyMachine?.state.isSoldOut) {
-      return 'SOLD OUT';
-    } else if (isMinting) {
-      return <CircularProgress />;
-    } else if (
-      candyMachine?.state.isPresale ||
-      candyMachine?.state.isWhitelistOnly
-    ) {
-      return 'WHITELIST MINT';
-    }
 
-    return 'MINT';
-  };
 
   useEffect(() => {
     const mint = async () => {
@@ -149,7 +151,7 @@ export const MintButton = ({
       }}
       variant="contained"
     >
-      {getMintButtonContent()}
+      {getMintButtonContent(candyMachine, isMinting)}
     </CTAButton>
   );
 };

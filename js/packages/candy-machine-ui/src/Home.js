@@ -22,7 +22,7 @@ import {
   mintOneToken
 } from './candy-machine';
 import { sendTransaction } from './connection';
-import { MintButton } from './MintButton';
+import { getMintButtonContent, MintButton } from './MintButton';
 import { MintCountdown } from './MintCountdown';
 import { formatNumber, getAtaForMint, toDate } from './utils';
 
@@ -508,7 +508,9 @@ const Home = (props) => {
                       type="number"
                       className="w-100 mt-2 btn-green header__input"
                     />
-                    <a className="btn-green mt-2">MINT HERE</a>
+                    <a className="btn-green mt-2">
+                      {getMintButtonContent(candyMachine, isUserMinting)}
+                    </a>
                     {/* <a className="btn-green mt-2">VIEW ON LOOKSRARE</a> */}
                   </div>
                 </div>
@@ -663,7 +665,7 @@ const Home = (props) => {
           </div>
         </div>
       </div>
-      
+
       <Birds />
       <FAQS />
       <Copyright />
