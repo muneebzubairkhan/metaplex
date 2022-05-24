@@ -61,7 +61,7 @@
   min-height: 100vh;
   /* background-color: #420091; */
   background-image: linear-gradient(to bottom, #630bcf1f, #630bcfab),
-    url("http://localhost:3000/images/header-bg.png");
+    url('./header-bg.png');
   background-size: cover;
   background-position: bottom;
   background-attachment: fixed;
