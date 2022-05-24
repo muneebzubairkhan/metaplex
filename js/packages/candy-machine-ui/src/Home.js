@@ -729,7 +729,7 @@ const Home = props => {
           <div className="row justify-content-center">
             <div className="col-md-6 col-lg-4 px-5">
               <img
-                src="http://localhost:3000/images/logo.png"
+                src={`${window.location.origin}/images/logo.png`}
                 className="w-100 mt-5"
                 alt=""
               />
@@ -737,7 +737,7 @@ const Home = props => {
             <div className="col-lg-3 col-md-4 px-5 px-md-4 px-lg-5 d-flex-justify-content-end">
               <button
                 onClick={() => {
-                  if(!wallet.publicKey) connectBtn.current.click()
+                  if (!wallet.publicKey) connectBtn.current.click();
                 }}
                 className="mt-5 btn-purple  mt-3 w-100"
               >
@@ -753,7 +753,7 @@ const Home = props => {
                 <div className="col-lg-7 col-md-7 p-4 p-lg-5 siteBox__left d-flex flex-column align-items-center">
                   <img
                     className="moonbird-logo"
-                    src="http://localhost:3000/images/moonbird-official-pfp.png"
+                    src={`${window.location.origin}/images/moonbird-official-pfp.png`}
                     alt=""
                   />
                   <h5 className="text-center mt-5">Find a SolMoonbird</h5>
